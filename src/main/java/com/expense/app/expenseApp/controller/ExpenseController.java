@@ -1,25 +1,18 @@
 package com.expense.app.expenseApp.controller;
-
-import com.expense.app.expenseApp.dto.BalanceDto;
 import com.expense.app.expenseApp.dto.ExpenseDto;
 import com.expense.app.expenseApp.service.ExpenseService;
 import jakarta.validation.Valid;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
-@Builder
-
+@RequestMapping("/expense")
 public class ExpenseController {
-    public final ExpenseService expenseService;
+    private final ExpenseService expenseService;
 
-    @PutMapping
+    @PostMapping
     public ResponseEntity<ExpenseDto> addExpense(@Valid @RequestBody ExpenseDto dto) {
         ExpenseDto expense = expenseService.addExpense(dto);
         return ResponseEntity.ok(expense);
@@ -38,5 +31,10 @@ public class ExpenseController {
     public ResponseEntity<List<ExpenseDto>> getExpenses() {
         List<ExpenseDto> expenses = expenseService.getExpenses();
         return ResponseEntity.ok(expenses);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteExpense(@PathVariable long id) {
+        expenseService.deleteExpense(id);
+        return ResponseEntity.ok("Delete Successful");
     }
 }

@@ -1,13 +1,12 @@
 package com.expense.app.expenseApp.service;
-
 import com.expense.app.expenseApp.dto.BalanceDto;
 import com.expense.app.expenseApp.entity.Balance;
 import com.expense.app.expenseApp.repository.BalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 
 @Service
@@ -15,9 +14,6 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class BalanceService {
     private final BalanceRepository balanceRepository;
-    private final ExpenseService expenseService;
-
-
     //ADD
     public BalanceDto addBalance(BalanceDto dto) {
         log.info("Add Balance");
@@ -42,14 +38,16 @@ public class BalanceService {
         return mapToDto(updated);
 
     }
-    //Get
+    //GET
     public BalanceDto getBalance(long id) {
         log.info("Fetching balance by Id");
         Balance balance = balanceRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Balance not found by Id: " + id));
         return mapToDto(balance);
     }
-    public void subtractFromBalance(long userId,BigDecimal amount) {
+    //UTILITY
+    @Transactional
+    public void subtractFromBalance(long userId, BigDecimal amount) {
         Balance balance = balanceRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Id not found"));
         if(balance.getBalance().compareTo(amount)<0) {
@@ -61,6 +59,8 @@ public class BalanceService {
             balanceRepository.save(balance);
         }
     }
+    //UTILITY
+    @Transactional
     public void additionFromBalance(long userId, BigDecimal amount) {
         Balance balance = balanceRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Id not found"));
@@ -68,7 +68,7 @@ public class BalanceService {
         balance.setBalance(newBalance);
         balanceRepository.save(balance);
     }
-
+    //UTILITY
     private BalanceDto mapToDto(Balance balance) {
         return BalanceDto.builder()
                 .user_id(balance.getUser_Id())

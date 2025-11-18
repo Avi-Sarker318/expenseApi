@@ -1,14 +1,15 @@
 package com.expense.app.expenseApp.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
 @Data
 @Table(name = "balance")
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Balance {
     @Id

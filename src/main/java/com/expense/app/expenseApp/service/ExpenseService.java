@@ -1,37 +1,38 @@
 package com.expense.app.expenseApp.service;
-
 import com.expense.app.expenseApp.dto.ExpenseDto;
 import com.expense.app.expenseApp.entity.Expense;
 import com.expense.app.expenseApp.repository.ExpenseRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final BalanceService balanceService;
-
-    //*ADD
+    //ADD
+    @Transactional
     public ExpenseDto addExpense(ExpenseDto dto) {
         log.info("Adding Expense: {}", dto.getUser_id());
+        balanceService.subtractFromBalance(dto.getUser_id(), dto.getAmount());
+        LocalDate expenseDate = dto.getDate() != null ? dto.getDate() : LocalDate.now();
         Expense expense = Expense.builder()
                 .user_id(dto.getUser_id())
                 .type(dto.getType())
                 .amount(dto.getAmount())
-                .date(dto.getDate())
+                .date(expenseDate)
                 .build();
         Expense saved = expenseRepository.save(expense);
-        balanceService.subtractFromBalance(dto.getUser_id(), dto.getAmount());
         return mapToDto(saved);
     }
-    //* GET
+    //GET
     public List<ExpenseDto> getExpenses() {
         log.info("Fetching Expense");
         List<Expense> expenses = expenseRepository.findAll();
@@ -41,36 +42,39 @@ public class ExpenseService {
         return expenses.stream()
                 .map(this::mapToDto).toList();
     }
-    //*GET
+    //GET
     public ExpenseDto getExpense(long id) {
         log.info("Fetching expense by Id");
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Expense not found by Id: " + id));
         return mapToDto(expense);
     }
-    //*UPDATED
+    //UPDATED
+    @Transactional
     public ExpenseDto updateExpense(long id, @Valid ExpenseDto dto) {
         log.info("Updating expense with ID {}", id);
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Expense not found by Id: " + id));
+        balanceService.additionFromBalance(expense.getUser_id(),expense.getAmount());
         expense.setUser_id(dto.getUser_id());
         expense.setType(dto.getType());
         expense.setAmount(dto.getAmount());
         expense.setDate(dto.getDate());
-
+        balanceService.subtractFromBalance(dto.getUser_id(), dto.getAmount());
         Expense updated = expenseRepository.save(expense);
         return mapToDto(updated);
     }
-    //*DELETED
+    //DELETED
+    @Transactional
     public void deleteExpense(long id) {
         log.info("Deleting expense");
-        if(!expenseRepository.existsById(id)) {
-            throw new EntityNotFoundException("Expense not in database");
-        }
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Expense not in database"));
+        balanceService.additionFromBalance(expense.getUser_id(),expense.getAmount());
         expenseRepository.deleteById(id);
-    }
 
-    //* Utility
+    }
+    //UTILITY
     private ExpenseDto mapToDto(Expense expense) {
         return ExpenseDto.builder()
                 .id(expense.getId())

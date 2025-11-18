@@ -1,18 +1,18 @@
 package com.expense.app.expenseApp.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
 @Data
 @Table(name="expense")
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +28,6 @@ public class Expense {
     private String type;
 
     @Column(nullable = false)
-    private Date date;
+    private LocalDate date;
 
 }

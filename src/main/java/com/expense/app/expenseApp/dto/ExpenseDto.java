@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -21,7 +22,7 @@ public class ExpenseDto {
     @NotBlank(message = "I'm sorry, we need a type")
     private String type;
 
-    private Date date;
+    private LocalDate date;
 
 
 

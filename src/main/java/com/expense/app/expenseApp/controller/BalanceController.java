@@ -1,17 +1,15 @@
 package com.expense.app.expenseApp.controller;
 
 import com.expense.app.expenseApp.dto.BalanceDto;
-import com.expense.app.expenseApp.entity.Balance;
 import com.expense.app.expenseApp.service.BalanceService;
 import jakarta.validation.Valid;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@Builder
+@RequestMapping("/balance")
 public class BalanceController {
     private final BalanceService balanceService;
 
@@ -31,9 +29,5 @@ public class BalanceController {
         BalanceDto balance = balanceService.updateBalance(id, dto);
         return ResponseEntity.ok(balance);
     }
-
-    //Get Balance
-
-    //Update a Balance
 
 }
